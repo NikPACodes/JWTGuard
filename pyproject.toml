@@ -1,0 +1,14 @@
+[project]
+name = "backend-jwt"
+version = "0.1.0"
+description = "Django + DRF + PyJWT + Redis test task"
+requires-python = ">=3.12"
+dependencies = [
+    "Django>=6.0",
+    "djangorestframework>=3.17",
+    "PyJWT>=2.12",
+    "psycopg[binary]>=3.3",
+    "redis>=7.4",
+    "python-dotenv>=1.2",
+    "drf-spectacular>=0.29",
+]
