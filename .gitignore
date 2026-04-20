@@ -8,3 +8,5 @@ env/
 ENV/
 .env*
 !.env.example
+certs/
+*.pem

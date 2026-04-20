@@ -141,14 +141,15 @@ REST_FRAMEWORK = {
     # Схема (по умолчанию)
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
-    # "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.auth_jwt.authentication.JWTAuthentication",
+    ],
 
     # Запрет API без аутентификации (по умолчанию)
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-
 
 # --------------------------------------------------------------------------
 # Spectacular
@@ -167,7 +168,7 @@ SPECTACULAR_SETTINGS = {
 # --------------------------------------------------------------------------
 # Redis
 # --------------------------------------------------------------------------
-REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_HOST = os.getenv('REDIS_HOST')
 REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 REDIS_DB = int(os.getenv('REDIS_DB', 0))
 
@@ -175,8 +176,11 @@ REDIS_DB = int(os.getenv('REDIS_DB', 0))
 # --------------------------------------------------------------------------
 # JWT
 # --------------------------------------------------------------------------
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+
+JWT_ALGORITHM = os.getenv('JWT_ALGORITHM', 'RS256')
 JWT_ISSUER = os.getenv('JWT_ISSUER')
 JWT_ACCESS_TTL_SECONDS = int(os.getenv('JWT_ACCESS_TTL_SECONDS', 900))
 JWT_REFRESH_TTL_SECONDS = int(os.getenv('JWT_REFRESH_TTL_SECONDS', 604800))
+JWT_PRIVATE_KEY_PATH = os.getenv('JWT_PRIVATE_KEY_PATH')
+JWT_PUBLIC_KEY_PATH = os.getenv('JWT_PUBLIC_KEY_PATH')
 
