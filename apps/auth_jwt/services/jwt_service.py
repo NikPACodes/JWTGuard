@@ -1,12 +1,16 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from uuid import uuid4
 from pathlib import Path
 import jwt
 from django.conf import settings
-from rest_framework.exceptions import AuthenticationFailed
+from apps.auth_jwt.exceptions import (ExpiredTokenError,
+                                      InvalidTokenError,
+                                      InvalidTokenIssuerError)
 
 
+@lru_cache(maxsize=1)
 def _read_private_key() -> str:
     """
     Считываем приватный ключ
@@ -15,6 +19,7 @@ def _read_private_key() -> str:
     return path.read_text(encoding='utf-8')
 
 
+@lru_cache(maxsize=1)
 def _read_public_key() -> str:
     """
     Считываем публичный ключ
@@ -80,14 +85,14 @@ def decode_token(token: str) -> dict:
             issuer=settings.JWT_ISSUER,
         )
     except jwt.ExpiredSignatureError as exc:
-        raise AuthenticationFailed('Токен истек.')
+        raise ExpiredTokenError() from exc
     except jwt.InvalidIssuerError as exc:
-        raise AuthenticationFailed('Ошибка издателя пользователя.')
+        raise InvalidTokenIssuerError() from exc
     except jwt.InvalidTokenError as exc:
-        raise AuthenticationFailed('Некорректный токен.')
+        raise InvalidTokenError() from exc
 
     required_fields = {'sub', 'type', 'jti', 'sid', 'iat', 'exp', 'iss',}
     if not required_fields.issubset(payload.keys()):
-        raise AuthenticationFailed('Неполный payload токен.')
+        raise InvalidTokenError('Неполный payload токен.')
 
     return payload
