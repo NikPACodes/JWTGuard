@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 from rest_framework import permissions, status
 from apps.auth_jwt.api.serializers import LoginSerializer, LogoutSerializer, RefreshSerializer
 from apps.auth_jwt.services.auth_service import login_user, logout_all_sessions, logout_session, refresh_tokens
@@ -33,15 +34,16 @@ class ProfileView(APIView):
         )
 
 
-class LoginView(APIView):
+class LoginView(GenericAPIView):
     """
     Авторизация.
     AllowAny т.к. нет Access токена
     """
     permission_classes = [permissions.AllowAny]
+    serializer_class = LoginSerializer
 
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         tokens = login_user(
@@ -51,30 +53,32 @@ class LoginView(APIView):
         return Response(tokens, status=status.HTTP_200_OK)
 
 
-class RefreshView(APIView):
+class RefreshView(GenericAPIView):
     """
     Обновление токена с ротацией.
     AllowAny т.к. Access токен уже истек
     """
     permission_classes = [permissions.AllowAny]
+    serializer_class = RefreshSerializer
 
     def post(self, request):
-        serializer = RefreshSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         tokens = refresh_tokens(refresh_token=serializer.validated_data["refresh"])
         return Response(tokens, status=status.HTTP_200_OK)
 
 
-class LogoutView(APIView):
+class LogoutView(GenericAPIView):
     """
     Обновление токена с ротацией.
     AllowAny т.к. делаем logout_session на основе Refresh токена (Access может отсутствовать)
     """
     permission_classes = [permissions.AllowAny]
+    serializer_class = LogoutSerializer
 
     def post(self, request):
-        serializer = LogoutSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         logout_session(refresh_token=serializer.validated_data["refresh"])

@@ -48,8 +48,8 @@ class JWTAuthentication(BaseAuthentication):
         if self.token_store.is_blacklisted(jti=jti):
             raise BlacklistedTokenError()
 
-        if not self.token_store.is_access_whitelisted(jti=jti):
-            raise NotWhitelistedTokenError()
+        # if not self.token_store.is_access_whitelisted(jti=jti):
+        #     raise NotWhitelistedTokenError()
 
         try:
             user = User.objects.get(id=user_id, is_active=True)
