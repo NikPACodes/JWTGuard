@@ -40,12 +40,12 @@ def login_user(*, email: str, password: str, token_store: RedisTokenStore | None
     session_id = str(uuid4())
 
     access_token, access_payload = create_access_token(user_id=user.id, session_id=session_id)
-    token_store.add_access_to_whitelist(
-        jti=access_payload['jti'],
-        user_id=user.id,
-        session_id=session_id,
-        exp=access_payload['exp'],
-    )
+    # token_store.add_access_to_whitelist(
+    #     jti=access_payload['jti'],
+    #     user_id=user.id,
+    #     session_id=session_id,
+    #     exp=access_payload['exp'],
+    # )
 
     refresh_token, refresh_payload = create_refresh_token(user_id=user.id, session_id=session_id)
     token_store.add_refresh_to_whitelist(
@@ -105,12 +105,12 @@ def refresh_tokens(*, refresh_token: str, token_store: RedisTokenStore | None = 
         _remove_access(token_store, jti=access_jti, exp=access_exp)
 
     new_access_token, new_access_payload = create_access_token(user_id=user_id, session_id=session_id)
-    token_store.add_access_to_whitelist(
-        jti=new_access_payload["jti"],
-        user_id=user_id,
-        session_id=session_id,
-        exp=new_access_payload["exp"],
-    )
+    # token_store.add_access_to_whitelist(
+    #     jti=new_access_payload["jti"],
+    #     user_id=user_id,
+    #     session_id=session_id,
+    #     exp=new_access_payload["exp"],
+    # )
 
     new_refresh_token, new_refresh_payload = create_refresh_token(user_id=user_id, session_id=session_id)
     token_store.add_refresh_to_whitelist(

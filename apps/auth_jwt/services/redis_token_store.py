@@ -8,7 +8,7 @@ class RedisTokenStore:
     """
     Класс для работы с токенами и сессией Redis
     """
-    ACCESS_WHITE_LIST = 'jwt:white:access:'
+    # ACCESS_WHITE_LIST = 'jwt:white:access:'
     REFRESH_WHITE_LIST = 'jwt:white:refresh:'
     BLACK_LIST = 'jwt:black:'
     SESSION_LIST = 'jwt:session:'
@@ -29,18 +29,18 @@ class RedisTokenStore:
         return max(ttl, 1)
 
 
-    def add_access_to_whitelist(self, *, jti: str, user_id: int, session_id: str, exp: int) -> None:
-        """
-        Добавление access токена к whitelist
-        """
-        key = f'{self.ACCESS_WHITE_LIST}{jti}'
-        ttl = self._seconds_until_exp(exp)
-        value = {
-           'user_id': user_id,
-           'sid': session_id,
-           'type': 'access',
-        }
-        self.redis_client.set(key, json.dumps(value), ex=ttl)
+    # def add_access_to_whitelist(self, *, jti: str, user_id: int, session_id: str, exp: int) -> None:
+    #     """
+    #     Добавление access токена к whitelist
+    #     """
+    #     key = f'{self.ACCESS_WHITE_LIST}{jti}'
+    #     ttl = self._seconds_until_exp(exp)
+    #     value = {
+    #        'user_id': user_id,
+    #        'sid': session_id,
+    #        'type': 'access',
+    #     }
+    #     self.redis_client.set(key, json.dumps(value), ex=ttl)
 
 
     def add_refresh_to_whitelist(self, *, jti: str, user_id: int, session_id: str, exp: int) -> None:
@@ -66,11 +66,11 @@ class RedisTokenStore:
         self.redis_client.set(key, "1", ex=ttl)
 
 
-    def is_access_whitelisted(self, *, jti: str) -> bool:
-        """
-        Проверка access в whitelist
-        """
-        return bool(self.redis_client.exists(f"{self.ACCESS_WHITE_LIST}{jti}"))
+    # def is_access_whitelisted(self, *, jti: str) -> bool:
+    #     """
+    #     Проверка access в whitelist
+    #     """
+    #     return bool(self.redis_client.exists(f"{self.ACCESS_WHITE_LIST}{jti}"))
 
 
     def is_refresh_whitelisted(self, *, jti: str) -> bool:
