@@ -24,7 +24,7 @@ def _remove_access(token_store: RedisTokenStore, *, jti: str, exp: int) -> None:
     Отзыв access токена
     """
     token_store.add_to_blacklist(jti=jti, exp=exp)
-    token_store.remove_access_from_whitelist(jti=jti)
+    # token_store.remove_access_from_whitelist(jti=jti)
 
 
 def login_user(*, email: str, password: str, token_store: RedisTokenStore | None = None) -> dict:

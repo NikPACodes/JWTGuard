@@ -87,11 +87,11 @@ class RedisTokenStore:
         return bool(self.redis_client.exists(f"{self.BLACK_LIST}{jti}"))
 
 
-    def remove_access_from_whitelist(self, *, jti: str) -> None:
-        """
-        Удаление access из whitelist
-        """
-        self.redis_client.delete(f"{self.ACCESS_WHITE_LIST}{jti}")
+    # def remove_access_from_whitelist(self, *, jti: str) -> None:
+    #     """
+    #     Удаление access из whitelist
+    #     """
+    #     self.redis_client.delete(f"{self.ACCESS_WHITE_LIST}{jti}")
 
 
     def remove_refresh_from_whitelist(self, *, jti: str) -> None:

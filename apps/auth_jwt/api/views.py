@@ -2,9 +2,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework import permissions, status
-from apps.auth_jwt.api.serializers import LoginSerializer, LogoutSerializer, RefreshSerializer
+from apps.auth_jwt.api.serializers import LoginSerializer, LogoutSerializer, RefreshSerializer, RegisterSerializer
 from apps.auth_jwt.services.auth_service import login_user, logout_all_sessions, logout_session, refresh_tokens
-
+from apps.auth_jwt.services.registration_service import register_user
 
 
 #Временная заглушка для создания каркаса
@@ -31,6 +31,35 @@ class ProfileView(APIView):
                 "groups": groups,
             },
             status=status.HTTP_200_OK,
+        )
+
+
+class RegisterView(GenericAPIView):
+    """
+    Кастомная регистрация
+    """
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = register_user(
+            email=serializer.validated_data["email"],
+            username=serializer.validated_data["username"],
+            password=serializer.validated_data["password"],
+            role=serializer.validated_data["role"],
+        )
+
+        return Response(
+            {
+                "id": user.id,
+                "email": user.email,
+                "username": user.username,
+                "groups": user.groups.values_list("name", flat=True).first(),
+            },
+            status=status.HTTP_201_CREATED,
         )
 
 
