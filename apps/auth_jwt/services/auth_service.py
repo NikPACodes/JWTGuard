@@ -148,25 +148,30 @@ def logout_session(*, refresh_token: str, token_store: RedisTokenStore | None = 
     refresh_jti = payload['jti']
     refresh_exp = payload['exp']
 
+    # Пред logout и отзывом, проверяем refresh токен
+    if token_store.is_blacklisted(jti=refresh_jti):
+        raise BlacklistedTokenError()
+
+    if not token_store.is_refresh_whitelisted(jti=refresh_jti):
+        raise NotWhitelistedTokenError()
+
     session = token_store.get_session(session_id=session_id)
     if not session:
-        _remove_refresh(token_store, jti=refresh_jti, exp=refresh_exp)
-        return
-
-    _remove_refresh(token_store, jti=refresh_jti, exp=refresh_exp)
+        raise SessionTokenMismatchError()
 
     access_jti = session.get('access_jti')
     access_exp = session.get('access_exp')
     active_refresh_jti = session.get('refresh_jti')
-    active_refresh_exp = session.get('refresh_exp')
+
+    # Проверяем соответствие токена сессии
+    if active_refresh_jti != refresh_jti:
+        raise SessionTokenMismatchError()
 
     if access_jti and access_exp:
         _remove_access(token_store, jti=access_jti, exp=access_exp)
 
-    # Подстраховка на случай если active_refresh_jti != refresh_jti
-    # Возможно в случае если refresh_jti украден и мы получили новый токен
-    if active_refresh_jti and active_refresh_exp and active_refresh_jti != refresh_jti:
-        _remove_refresh(token_store, jti=active_refresh_jti, exp=active_refresh_exp)
+    # Отзываем refresh токен
+    _remove_refresh(token_store, jti=refresh_jti, exp=refresh_exp)
 
     token_store.delete_session(session_id=session_id)
 

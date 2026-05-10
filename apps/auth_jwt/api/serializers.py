@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
 
@@ -26,6 +27,14 @@ class RegisterSerializer(serializers.Serializer):
         value = value.strip()
         if not Group.objects.filter(name=value).exists():
             raise serializers.ValidationError("Указанная роль не существует.")
+        return value
+
+    def validate_password(self, value):
+        user = User(
+            email = self.initial_data.get('email'),
+            username = self.initial_data.get('username'),
+        )
+        validate_password(password=value, user=user)
         return value
 
 

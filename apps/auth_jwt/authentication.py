@@ -6,7 +6,8 @@ from apps.auth_jwt.services.redis_token_store import RedisTokenStore
 from apps.auth_jwt.exceptions import (InvalidAuthorizationHeaderError,
                                       InvalidTokenTypeError,
                                       BlacklistedTokenError,
-                                      NotWhitelistedTokenError,
+                                      SessionNotFoundError,
+                                      SessionTokenMismatchError,
                                       UserNotFoundAuthError)
 
 User = get_user_model()
@@ -44,12 +45,23 @@ class JWTAuthentication(BaseAuthentication):
 
         jti = payload['jti']
         user_id = int(payload['sub'])
+        session_id = payload['sid']
 
+        # Проверяем наличие Access токена в черном списке
         if self.token_store.is_blacklisted(jti=jti):
             raise BlacklistedTokenError()
 
         # if not self.token_store.is_access_whitelisted(jti=jti):
         #     raise NotWhitelistedTokenError()
+
+        # Проверяем соответствие Access токена сессии
+        session = self.token_store.get_session(session_id=session_id)
+        if not session:
+            raise SessionNotFoundError()
+
+        if session['access_jti'] != jti:
+            raise SessionTokenMismatchError()
+
 
         try:
             user = User.objects.get(id=user_id, is_active=True)

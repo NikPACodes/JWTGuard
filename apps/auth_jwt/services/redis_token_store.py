@@ -173,4 +173,4 @@ class RedisTokenStore:
         """
         key = f"{self.USER_SESSIONS_LIST}{user_id}"
         values = self.redis_client.smembers(key)
-        return [value.decode("utf-8") for value in values]
+        return [str(value) for value in values]
