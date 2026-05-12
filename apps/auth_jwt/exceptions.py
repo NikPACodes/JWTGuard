@@ -62,6 +62,11 @@ class UserNotFoundAuthError(JWTAuthError):
     default_code = "user_not_found"
 
 
+class TokenRotationConflictError(JWTAuthError):
+    default_detail = "Ошибка ротации токена."
+    default_code = "token_rotation_conflict"
+
+
 class AuthServiceError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Ошибка аутентификации."
