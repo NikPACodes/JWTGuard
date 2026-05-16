@@ -63,11 +63,29 @@ class UserNotFoundAuthError(JWTAuthError):
 
 
 class TokenRotationConflictError(JWTAuthError):
+    status_code = status.HTTP_409_CONFLICT
     default_detail = "Ошибка ротации токена."
     default_code = "token_rotation_conflict"
+
+
+class RefreshTokenReuseDetectedError(JWTAuthError):
+    default_detail = "Обнаружено повторное использование Refresh токена. Сессия была отозвана."
+    default_code = "refresh_token_reuse_detected"
 
 
 class AuthServiceError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Ошибка аутентификации."
     default_code = "auth_service_error"
+
+
+class PipelineSessionRequiredError(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = "Для операции через pipeline необходимо явно передать session."
+    default_code = "pipeline_session_required"
+
+
+class SessionStateMismatchError(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = "Некорректное состояние Redis-сессии."
+    default_code = "session_state_mismatch"

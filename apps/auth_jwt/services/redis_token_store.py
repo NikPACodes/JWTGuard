@@ -2,6 +2,17 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from utils.redis_client import get_redis_client
+from apps.auth_jwt.exceptions import SessionStateMismatchError, PipelineSessionRequiredError
+
+class TokenRevokeReason:
+    """
+    Причины добавления токена в blacklist
+    """
+    ROTATION = 'rotation'
+    LOGOUT = 'logout'
+    LOGOUT_ALL = 'logout_all'
+    REUSE_DETECTED = 'reuse_detected'
+    TOKEN_MISMATCH = 'token_mismatch'
 
 
 class RedisTokenStore:
@@ -61,13 +72,27 @@ class RedisTokenStore:
 
 
     # ---------------------------------------------------------------------
-    # Проверки  Blacklist / Whitelist
+    # Работа с Blacklist
     # ---------------------------------------------------------------------
-    def is_refresh_whitelisted(self, *, jti: str) -> bool:
+    def add_to_blacklist(self, *, jti: str, exp: int, user_id: int, session_id: str,
+                                  token_type: str, reason: str,
+                                  client=None) -> None:
         """
-        Проверка refresh в whitelist
+        Добавление в blacklist
         """
-        return bool(self.redis_client.exists(self.refresh_whitelist_key(jti=jti)))
+        client = client or self.redis_client
+        key = self.blacklist_key(jti=jti)
+        ttl = self.seconds_until_exp(exp)
+        revoked_at = int(datetime.now(timezone.utc).timestamp())
+        value = {
+            'user_id': user_id,
+            'sid': session_id,
+            'type': token_type,
+            'revoked_at': revoked_at,
+            'reason': reason,
+        }
+
+        client.set(key, json.dumps(value), ex=ttl)
 
 
     def is_blacklisted(self, *, jti: str) -> bool:
@@ -77,15 +102,21 @@ class RedisTokenStore:
         return bool(self.redis_client.exists(self.blacklist_key(jti=jti)))
 
 
-    # def is_access_whitelisted(self, *, jti: str) -> bool:
-    #     """
-    #     Проверка access в whitelist
-    #     """
-    #     return bool(self.redis_client.exists(f"{self.ACCESS_WHITE_LIST}{jti}"))
+    def get_blacklist_metadata(self, *, jti: str) -> dict | None:
+        """
+        Получение metadata blacklist.
+        """
+        value = self.redis_client.get(self.blacklist_key(jti=jti))
+
+        if not value:
+            return None
+
+        return json.loads(value)
+
 
 
     # ---------------------------------------------------------------------
-    # Добавление в  Blacklist / Whitelist
+    # Работа с Whitelist
     # ---------------------------------------------------------------------
     def add_refresh_to_whitelist(self, *, jti: str, user_id: int, session_id: str, exp: int, client=None) -> None:
         """
@@ -102,45 +133,19 @@ class RedisTokenStore:
         client.set(key, json.dumps(value), ex=ttl)
 
 
-    def add_to_blacklist(self, *, jti: str, exp: int, client=None) -> None:
+    def is_refresh_whitelisted(self, *, jti: str) -> bool:
         """
-        Добавление в blacklist
+        Проверка refresh в whitelist
         """
-        client = client or self.redis_client
-        key = self.blacklist_key(jti=jti)
-        ttl = self.seconds_until_exp(exp)
-        client.set(key, "1", ex=ttl)
-
-    # def add_access_to_whitelist(self, *, jti: str, user_id: int, session_id: str, exp: int) -> None:
-    #     """
-    #     Добавление access токена к whitelist
-    #     """
-    #     key = f'{self.ACCESS_WHITE_LIST}{jti}'
-    #     ttl = self._seconds_until_exp(exp)
-    #     value = {
-    #        'user_id': user_id,
-    #        'sid': session_id,
-    #        'type': 'access',
-    #     }
-    #     self.redis_client.set(key, json.dumps(value), ex=ttl)
+        return bool(self.redis_client.exists(self.refresh_whitelist_key(jti=jti)))
 
 
-    # ---------------------------------------------------------------------
-    # Удаление из Blacklist / Whitelist
-    # ---------------------------------------------------------------------
     def remove_refresh_from_whitelist(self, *, jti: str, client=None) -> None:
         """
         Удаление refresh из whitelist
         """
         client = client or self.redis_client
         client.delete(self.refresh_whitelist_key(jti=jti))
-
-
-    # def remove_access_from_whitelist(self, *, jti: str) -> None:
-    #     """
-    #     Удаление access из whitelist
-    #     """
-    #     self.redis_client.delete(f"{self.ACCESS_WHITE_LIST}{jti}")
 
 
     # ---------------------------------------------------------------------
@@ -153,7 +158,12 @@ class RedisTokenStore:
         session = self.redis_client.get(self.session_key(session_id=session_id))
         if not session:
             return None
-        return json.loads(session)
+
+        session_data = json.loads(session)
+        if session_data.get('sid') != session_id:
+            raise SessionStateMismatchError("Redis сессия повреждёна: sid не соответствует ключу.")
+
+        return session_data
 
 
     def get_user_session_ids(self, *, user_id: int) -> list[str]:
@@ -177,6 +187,7 @@ class RedisTokenStore:
         user_sessions_key = self.user_sessions_key(user_id=user_id)
         ttl = self.seconds_until_exp(refresh_exp)
         value = {
+            'sid': session_id,
             'user_id': user_id,
             'access_jti': access_jti,
             'access_exp': access_exp,
@@ -191,14 +202,22 @@ class RedisTokenStore:
 
     def update_session_tokens(self, *, session_id: str,
                                        access_jti: str, access_exp: int,
-                                       refresh_jti: str, refresh_exp: int) -> None:
+                                       refresh_jti: str, refresh_exp: int,
+                                       session: dict | None = None, client = None) -> None:
         """
         Обновление токенов сессии.
 
-        ! Метод не предназначен для использования внутри pipeline transaction,
-        т.к. сам читает session через обычный redis_client в get_session().
+        ! Для работы через pipe, session является обязательным
         """
-        session = self.get_session(session_id=session_id)
+        if client and session is None:
+            raise PipelineSessionRequiredError("session является обязательной при указании client")
+
+        if session and session.get('sid') != session_id:
+                raise SessionStateMismatchError("Сессия не соответствует id.")
+
+        session = session or self.get_session(session_id=session_id)
+        client = client or self.redis_client
+
         if not session:
             return
 
@@ -211,19 +230,66 @@ class RedisTokenStore:
         user_sessions_key = self.user_sessions_key(user_id=session['user_id'])
         ttl = self.seconds_until_exp(refresh_exp)
 
-        self.redis_client.set(session_key, json.dumps(session), ex=ttl)
-        self.redis_client.expire(user_sessions_key, ttl)
+        client.set(session_key, json.dumps(session), ex=ttl)
+        client.expire(user_sessions_key, ttl)
 
 
-    def delete_session(self, *, session_id: str) -> None:
+    def delete_session(self, *, session_id: str, session: dict|None=None, client=None) -> None:
         """
-        Удаление сессии
+        Удаление сессии.
 
-        ! Не поддерживает работы через pipe, т.к.
-        get_session() конфликтует с multi()
+        ! Для работы через pipe, session является обязательным
         """
-        session = self.get_session(session_id=session_id)
+        if client and session is None:
+            raise PipelineSessionRequiredError("session является обязательной при указании client")
+
+        if session and session.get('sid') != session_id:
+                raise SessionStateMismatchError("Сессия не соответствует id.")
+
+        session = session or self.get_session(session_id=session_id)
+        client = client or self.redis_client
+
         if session:
             user_sessions_key = self.user_sessions_key(user_id=session['user_id'])
-            self.redis_client.srem(user_sessions_key, session_id)
-        self.redis_client.delete(self.session_key(session_id=session_id))
+            client.srem(user_sessions_key, session_id)
+        client.delete(self.session_key(session_id=session_id))
+
+
+    def revoke_session(self, *, session_id: str, reason: str) -> None:
+        """
+        Полный отзыв сессии.
+
+        - Добавляет токены access/refresh в blacklist
+        - Удаляет refresh токен из whitelist;
+        - Удаляет session key и session_id из user_sessions пользователя.
+        """
+        session = self.get_session(session_id=session_id)
+
+        if not session:
+            return
+
+        user_id = int(session['user_id'])
+        access_jti = session.get('access_jti')
+        access_exp = session.get('access_exp')
+
+        refresh_jti = session.get('refresh_jti')
+        refresh_exp = session.get('refresh_exp')
+
+        if access_jti and access_exp:
+            self.add_to_blacklist(jti=access_jti,
+                                  exp=access_exp,
+                                  user_id=user_id,
+                                  session_id=session_id,
+                                  token_type='access',
+                                  reason=reason)
+
+        if refresh_jti and refresh_exp:
+            self.remove_refresh_from_whitelist(jti=refresh_jti)
+            self.add_to_blacklist(jti=refresh_jti,
+                                  exp=refresh_exp,
+                                  user_id=user_id,
+                                  session_id=session_id,
+                                  token_type='refresh',
+                                  reason=reason)
+
+        self.delete_session(session_id=session_id, session=session)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 from uuid import uuid4
 from django.contrib.auth import authenticate
+from django.conf import settings
+from datetime import datetime, timezone
 import json
 from redis.exceptions import WatchError
 from apps.auth_jwt.exceptions import (BlacklistedTokenError,
@@ -9,37 +11,44 @@ from apps.auth_jwt.exceptions import (BlacklistedTokenError,
                                       NotWhitelistedTokenError,
                                       SessionNotFoundError,
                                       SessionTokenMismatchError,
-                                      TokenRotationConflictError)
+                                      TokenRotationConflictError,
+                                      SessionStateMismatchError,
+                                      RefreshTokenReuseDetectedError)
 from apps.auth_jwt.services.jwt_service import create_access_token, create_refresh_token, decode_token
-from apps.auth_jwt.services.redis_token_store import RedisTokenStore
+from apps.auth_jwt.services.redis_token_store import RedisTokenStore, TokenRevokeReason
 
 
-def _remove_refresh(token_store: RedisTokenStore, *, jti: str, exp: int, client=None) -> None:
+#--------------------------------------------------------------------------------------------------------
+def _remove_refresh(token_store: RedisTokenStore, *, jti: str, exp: int,
+                                                     user_id: int, session_id: str, reason: str,
+                                                     client=None) -> None:
     """
     Отзыв refresh токена
     """
-    token_store.add_to_blacklist(jti=jti, exp=exp, client=client)
+    token_store.add_to_blacklist(jti=jti, exp=exp, user_id=user_id, session_id=session_id,
+                                 token_type='refresh', reason=reason,
+                                 client=client)
     token_store.remove_refresh_from_whitelist(jti=jti, client=client)
 
 
-def _remove_access(token_store: RedisTokenStore, *, jti: str, exp: int, client=None) -> None:
+def _remove_access(token_store: RedisTokenStore, *, jti: str, exp: int,
+                                                    user_id: int, session_id: str, reason: str,
+                                                    client=None) -> None:
     """
     Отзыв access токена
     """
-    token_store.add_to_blacklist(jti=jti, exp=exp, client=client)
-    # token_store.remove_access_from_whitelist(jti=jti)
+    token_store.add_to_blacklist(jti=jti, exp=exp, user_id=user_id, session_id=session_id,
+                                 token_type='access', reason=reason,
+                                 client=client)
 
 
-def _rotate_refresh_session(*, token_store: RedisTokenStore,
-                            user_id: int, session_id: str, refresh_jti: str,
-                            new_access_payload: dict, new_refresh_payload: dict) -> None:
+def _rotate_refresh_session(token_store: RedisTokenStore, *, user_id: int, session_id: str, refresh_jti: str,
+                                                             new_access_payload: dict, new_refresh_payload: dict) -> None:
     """
     Атомарная ротация JWT-сессии через Redis WATCH/MULTI/EXEC.
 
     Защищает от ситуации, когда один refresh token одновременно
     используется в двух refresh-запросах.
-
-    Сессия обновляется вручную, т.к. update_session_tokens не поддерживает работу через pipeline transaction.
     """
     redis_client = token_store.redis_client
 
@@ -66,6 +75,10 @@ def _rotate_refresh_session(*, token_store: RedisTokenStore,
 
             session = json.loads(raw_session)
 
+            if session['sid'] != session_id:
+                pipe.unwatch()
+                raise SessionStateMismatchError("Redis сессия повреждёна: sid не соответствует ключу.")
+
             if session['refresh_jti'] != refresh_jti:
                 pipe.unwatch()
                 raise SessionTokenMismatchError("Refresh токен не соответствует текущей сессии.")
@@ -75,25 +88,24 @@ def _rotate_refresh_session(*, token_store: RedisTokenStore,
             refresh_exp = session.get('refresh_exp')
 
 
-            session['access_jti'] = new_access_payload['jti']
-            session['access_exp'] = new_access_payload['exp']
-            session['refresh_jti'] = new_refresh_payload['jti']
-            session['refresh_exp'] = new_refresh_payload['exp']
-
-            new_refresh_ttl = token_store.seconds_until_exp(new_refresh_payload['exp'])
-
             # Открываем pipeline
             pipe.multi()
 
             _remove_refresh(token_store,
                             jti=refresh_jti,
                             exp=refresh_exp,
+                            user_id=user_id,
+                            session_id=session_id,
+                            reason=TokenRevokeReason.ROTATION,
                             client=pipe)
 
             if access_jti and access_exp:
                 _remove_access(token_store,
                                jti=access_jti,
                                exp=access_exp,
+                               user_id=user_id,
+                               session_id=session_id,
+                               reason=TokenRevokeReason.ROTATION,
                                client=pipe)
 
             token_store.add_refresh_to_whitelist(jti=new_refresh_payload['jti'],
@@ -102,8 +114,13 @@ def _rotate_refresh_session(*, token_store: RedisTokenStore,
                                                  exp=new_refresh_payload['exp'],
                                                  client=pipe)
 
-            pipe.set(session_key, json.dumps(session), ex=new_refresh_ttl)
-            pipe.expire(token_store.user_sessions_key(user_id=user_id), new_refresh_ttl)
+            token_store.update_session_tokens(session_id=session_id,
+                                              access_jti=new_access_payload["jti"],
+                                              access_exp=new_access_payload["exp"],
+                                              refresh_jti=new_refresh_payload["jti"],
+                                              refresh_exp=new_refresh_payload["exp"],
+                                              session=session,
+                                              client=pipe)
             # Закрытие pipeline и отправка команд
             pipe.execute()
 
@@ -111,6 +128,51 @@ def _rotate_refresh_session(*, token_store: RedisTokenStore,
         raise TokenRotationConflictError("Ошибка ротации Refresh токена.")
 
 
+def _get_revoked_at(blacklist_metadata: dict) -> int:
+    """
+    Безопасное получение revoked_at из blacklist metadata.
+    """
+    revoked_at = blacklist_metadata.get("revoked_at")
+
+    if not revoked_at:
+        return 0
+
+    return int(revoked_at)
+
+
+def _blacklisted_refresh_token(token_store: RedisTokenStore, *, payload:dict, blacklist_metadata:dict|None) -> None:
+    """
+    Обработка ситуации, когда refresh token уже находится в blacklist.
+
+    Если это недавняя rotation — считаем конфликтом/дублем запроса.
+    Если нет — считаем reuse detection и отзываем сессию.
+    """
+    session_id = payload['sid']
+
+    # Отзываем сессии с токенами без blacklist metadata
+    # Подстраховка на случай поврежденных записей
+    if not blacklist_metadata:
+        token_store.revoke_session(session_id=session_id,
+                                   reason=TokenRevokeReason.REUSE_DETECTED)
+        raise RefreshTokenReuseDetectedError()
+
+    reason = blacklist_metadata.get('reason')
+    revoked_at = _get_revoked_at(blacklist_metadata)
+
+    grace_seconds = settings.JWT_REFRESH_REUSE_GRACE_SECONDS
+    seconds_after_revoke =int(datetime.now(timezone.utc).timestamp()) - revoked_at
+
+    if reason == TokenRevokeReason.ROTATION and seconds_after_revoke <= grace_seconds:
+        raise TokenRotationConflictError("Повторный refresh-запрос в пределах grace периода.")
+
+    # Отзываем сессию
+    token_store.revoke_session(session_id=session_id,
+                               reason=TokenRevokeReason.REUSE_DETECTED)
+
+    raise RefreshTokenReuseDetectedError()
+
+
+#--------------------------------------------------------------------------------------------------------
 def login_user(*, email: str, password: str, token_store: RedisTokenStore | None = None) -> dict:
     """
     Аутентификация пользователя и создание новой JWT-сессии.
@@ -118,35 +180,24 @@ def login_user(*, email: str, password: str, token_store: RedisTokenStore | None
     token_store = token_store or RedisTokenStore()
     # Проверка учетных данных
     user = authenticate(username=email, password=password)
-    if not user:
+    if not user or not user.is_active:
         raise InvalidCredentialsError()
 
     session_id = str(uuid4())
 
     access_token, access_payload = create_access_token(user_id=user.id, session_id=session_id)
-    # token_store.add_access_to_whitelist(
-    #     jti=access_payload['jti'],
-    #     user_id=user.id,
-    #     session_id=session_id,
-    #     exp=access_payload['exp'],
-    # )
-
     refresh_token, refresh_payload = create_refresh_token(user_id=user.id, session_id=session_id)
-    token_store.add_refresh_to_whitelist(
-        jti=refresh_payload['jti'],
-        user_id=user.id,
-        session_id=session_id,
-        exp=refresh_payload['exp'],
-    )
+    token_store.add_refresh_to_whitelist(jti=refresh_payload['jti'],
+                                         user_id=user.id,
+                                         session_id=session_id,
+                                         exp=refresh_payload['exp'])
 
-    token_store.create_session(
-        session_id=session_id,
-        user_id=user.id,
-        access_jti=access_payload['jti'],
-        access_exp=access_payload['exp'],
-        refresh_jti=refresh_payload['jti'],
-        refresh_exp=refresh_payload['exp'],
-    )
+    token_store.create_session(session_id=session_id,
+                               user_id=user.id,
+                               access_jti=access_payload['jti'],
+                               access_exp=access_payload['exp'],
+                               refresh_jti=refresh_payload['jti'],
+                               refresh_exp=refresh_payload['exp'])
 
     return {
         "access": access_token,
@@ -168,18 +219,28 @@ def refresh_tokens(*, refresh_token: str, token_store: RedisTokenStore | None = 
     session_id = payload['sid']
     user_id = int(payload['sub'])
 
+    # Проверка blacklist для reuse detection
+    blacklist_metadata = token_store.get_blacklist_metadata(jti=refresh_jti)
+    if blacklist_metadata:
+        _blacklisted_refresh_token(token_store,
+                                   payload=payload,
+                                   blacklist_metadata=blacklist_metadata)
+
     # Создаем новые токены сразу, но валидными они станут только после успешного Redis EXEC.
     new_access_token, new_access_payload = create_access_token(user_id=user_id, session_id=session_id)
     new_refresh_token, new_refresh_payload = create_refresh_token(user_id=user_id, session_id=session_id)
 
-    _rotate_refresh_session(
-        token_store=token_store,
-        user_id=user_id,
-        session_id=session_id,
-        refresh_jti=refresh_jti,
-        new_access_payload=new_access_payload,
-        new_refresh_payload=new_refresh_payload,
-    )
+    try:
+        _rotate_refresh_session(token_store,
+                                user_id=user_id,
+                                session_id=session_id,
+                                refresh_jti=refresh_jti,
+                                new_access_payload=new_access_payload,
+                                new_refresh_payload=new_refresh_payload)
+
+    # Т.к. мы уже провели reuse detection, то ошибка скорее всего вызвана race condition
+    except (BlacklistedTokenError, NotWhitelistedTokenError):
+        raise TokenRotationConflictError()
 
     return {
         "access": new_access_token,
@@ -200,6 +261,7 @@ def logout_session(*, refresh_token: str, token_store: RedisTokenStore | None = 
     session_id = payload['sid']
     refresh_jti = payload['jti']
     refresh_exp = payload['exp']
+    user_id = int(payload['sub'])
 
     # Пред logout и отзывом, проверяем refresh токен
     if token_store.is_blacklisted(jti=refresh_jti):
@@ -210,7 +272,7 @@ def logout_session(*, refresh_token: str, token_store: RedisTokenStore | None = 
 
     session = token_store.get_session(session_id=session_id)
     if not session:
-        raise SessionTokenMismatchError()
+        raise SessionNotFoundError()
 
     access_jti = session.get('access_jti')
     access_exp = session.get('access_exp')
@@ -221,10 +283,20 @@ def logout_session(*, refresh_token: str, token_store: RedisTokenStore | None = 
         raise SessionTokenMismatchError()
 
     if access_jti and access_exp:
-        _remove_access(token_store, jti=access_jti, exp=access_exp)
+        _remove_access(token_store,
+                       jti=access_jti,
+                       exp=access_exp,
+                       user_id=user_id,
+                       session_id=session_id,
+                       reason=TokenRevokeReason.LOGOUT)
 
     # Отзываем refresh токен
-    _remove_refresh(token_store, jti=refresh_jti, exp=refresh_exp)
+    _remove_refresh(token_store,
+                    jti=refresh_jti,
+                    exp=refresh_exp,
+                    user_id=user_id,
+                    session_id=session_id,
+                    reason=TokenRevokeReason.LOGOUT)
 
     token_store.delete_session(session_id=session_id)
 
@@ -237,19 +309,5 @@ def logout_all_sessions(*, user, token_store: RedisTokenStore | None = None) -> 
     session_ids = token_store.get_user_session_ids(user_id=user.id)
 
     for session_id in session_ids:
-        session = token_store.get_session(session_id=session_id)
-        if not session:
-            continue
-
-        access_jti = session.get('access_jti')
-        access_exp = session.get('access_exp')
-        refresh_jti = session.get('refresh_jti')
-        refresh_exp = session.get('refresh_exp')
-
-        if access_jti and access_exp:
-            _remove_access(token_store, jti=access_jti, exp=access_exp)
-
-        if refresh_jti and refresh_exp:
-            _remove_refresh(token_store, jti=refresh_jti, exp=refresh_exp)
-
-        token_store.delete_session(session_id=session_id)
+        token_store.revoke_session(session_id=session_id,
+                                   reason=TokenRevokeReason.LOGOUT_ALL)
