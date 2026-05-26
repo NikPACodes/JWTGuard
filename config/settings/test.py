@@ -16,6 +16,14 @@ DEBUG = False
 TESTING = True
 
 
+# --------------------------------------------------------------------------
+# Password
+# --------------------------------------------------------------------------
+# Добавили для ускорения тестов
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+]
+
 # # --------------------------------------------------------------------------
 # # Django REST Framework
 # # --------------------------------------------------------------------------
@@ -26,3 +34,10 @@ TESTING = True
 #         'rest_framework.renderers.JSONRenderer',
 #     ]
 # }
+
+# --------------------------------------------------------------------------
+# JWT
+# --------------------------------------------------------------------------
+JWT_ACCESS_TTL_SECONDS = int(os.getenv('JWT_ACCESS_TTL_SECONDS', 60))
+JWT_REFRESH_TTL_SECONDS = int(os.getenv('JWT_REFRESH_TTL_SECONDS', 120))
+JWT_REFRESH_REUSE_GRACE_SECONDS = int(os.getenv('JWT_REFRESH_REUSE_GRACE_SECONDS', 0))

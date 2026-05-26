@@ -12,4 +12,17 @@ dependencies = [
     "redis>=7.4",
     "python-dotenv>=1.2",
     "drf-spectacular>=0.29",
+    "pytest",
+    "pytest-django",
+    "pytest-mock",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
 ]
