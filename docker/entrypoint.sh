@@ -1,20 +1,42 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 echo "Старт DjangoJWT контейнера..."
 
+if [ -z "${JWT_PRIVATE_KEY_PATH:-}" ]; then
+  echo "ERROR: Приватный ключ JWT_PRIVATE_KEY_PATH не задан."
+  exit 1
+fi
+
+if [ -z "${JWT_PUBLIC_KEY_PATH:-}" ]; then
+  echo "Публичный ключ JWT_PUBLIC_KEY_PATH не задан."
+  exit 1
+fi
+
 if [ ! -f "$JWT_PRIVATE_KEY_PATH" ]; then
   echo "ERROR: Приватный JWT ключ не найден: $JWT_PRIVATE_KEY_PATH"
-  echo "Генерация ключей:"
-  echo "  mkdir -p certs"
-  echo "  openssl genpkey -algorithm RSA -out certs/jwt_private.pem -pkeyopt rsa_keygen_bits:2048"
-  echo "  openssl rsa -pubout -in certs/jwt_private.pem -out certs/jwt_public.pem"
+  echo ""
+  echo "Сгенерируйте JWT ключ перед стартом приложения:"
+  echo "  ./scripts/generate_jwt_keys.sh"
+  echo ""
+  echo "Проверьте верификацию ключа:"
+  echo "  ./scripts/verify_jwt_keys.sh"
   exit 1
 fi
 
 if [ ! -f "$JWT_PUBLIC_KEY_PATH" ]; then
-  echo "ERROR: Публичный JWT ключ не найден: $JWT_PUBLIC_KEY_PATH"
+  echo "ERROR: JWT public key not found: $JWT_PUBLIC_KEY_PATH"
+  echo ""
+  echo "Сгенерируйте JWT ключ перед стартом приложения:"
+  echo "  ./scripts/generate_jwt_keys.sh"
+  echo ""
+  echo "Проверьте верификацию ключа:"
+  echo "  ./scripts/verify_jwt_keys.sh"
   exit 1
 fi
+
+python /app/docker/wait_for_services.py
+
+echo "DjangoJWT контейнер готов. Выполняется команда: $*"
 
 exec "$@"
