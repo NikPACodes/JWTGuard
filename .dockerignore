@@ -6,6 +6,8 @@ venv/
 .vscode/
 .pytest_cache/
 __pycache__/
+*.pyc
+*.pyo
 env/
 ENV/
 .env

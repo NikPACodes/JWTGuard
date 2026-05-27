@@ -1,21 +1,37 @@
 [project]
-name = "backend-jwt"
+name = "django-jwt-redis-auth"
 version = "0.1.0"
-description = "Django + DRF + PyJWT + Redis test task"
+description = "Advanced JWT authentication example with Django, DRF, PyJWT, Redis sessions, refresh rotation, and token reuse detection."
+readme = "README.md"
 requires-python = ">=3.12"
+#license = { text = "MIT" }
+#authors = [
+#    { name = "NikPACodes" }
+#]
 dependencies = [
     "Django>=6.0",
     "djangorestframework>=3.17",
-    "PyJWT>=2.12",
-    "cryptography>=46.0",
+    "PyJWT[crypto]>=2.12",
     "psycopg[binary]>=3.3",
     "redis>=7.4",
     "python-dotenv>=1.2",
     "drf-spectacular>=0.29",
-    "pytest",
-    "pytest-django",
-    "pytest-mock",
 ]
+
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0",
+    "pytest-django>=4.12",
+    "pytest-mock>=3.14",
+    "django-stubs>=6.0",
+    "django-stubs-ext>=6.0",
+    "djangorestframework-stubs>=3.16",
+    "types-PyYAML>=6.0",
+]
+
+[tool.setuptools]
+packages = []
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
