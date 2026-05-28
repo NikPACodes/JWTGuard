@@ -250,19 +250,19 @@ Access token:
 ## 📚 Документация и правила проекта
 
 ### 📄 Лицензия
-Условия использования и распространения проекта — [LICENSE](./LICENSE)
+[LICENSE](./LICENSE) ── Условия использования и распространения проекта.
 
 ### 🤝 Вклад в проект
-Как сообщать об ошибках и уязвимостях — [CONTRIBUTING](./CONTRIBUTING.md)
+[CONTRIBUTING](./CONTRIBUTING.md) ── Как сообщать об ошибках и уязвимостях.
 
 ### 🛠 Развертывание проекта
-Локальный запуск, Docker, Makefile-команды и тесты ── [DEVELOPMENT](./docs/DEVELOPMENT.m
+[DEVELOPMENT](./docs/DEVELOPMENT.md) ── Локальный запуск, Docker, Makefile-команды и тесты.
 
 ### 🏗️ Архитектура
-Описание общей архитектуры проекта — [ARCHITECTURE](./docs/ARCHITECTURE.md)  
-Жизненный цикл токенов и auth-flow — [JWT_FLOW](./docs/JWT_FLOW.md)  
-Модель безопасности, угрозы и ограничения — [SECURITY_MODEL](./docs/SECURITY_MODEL.md)  
-Примеры API-запросов — [API_EXAMPLES](./docs/API_EXAMPLES.md)
+[ARCHITECTURE](./docs/ARCHITECTURE.md) ── Описание общей архитектуры проекта.  
+[JWT_FLOW](./docs/JWT_FLOW.md) ── Жизненный цикл токенов и auth-flow.  
+[SECURITY_MODEL](./docs/SECURITY_MODEL.md) ── Модель безопасности, угрозы и ограничения.  
+[API_EXAMPLES](./docs/API_EXAMPLES.md) ── Примеры API-запросов.  
 
 ---
 
