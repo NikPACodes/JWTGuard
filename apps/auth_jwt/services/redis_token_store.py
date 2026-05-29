@@ -19,7 +19,6 @@ class RedisTokenStore:
     """
     Класс для работы с токенами и сессией Redis
     """
-    # ACCESS_WHITE_LIST = 'jwt:white:access:'
     REFRESH_WHITE_LIST = 'jwt:white:refresh:'
     BLACK_LIST = 'jwt:black:'
     SESSION_LIST = 'jwt:session:'
