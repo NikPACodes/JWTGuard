@@ -50,6 +50,48 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: run_mode
+    attributes:
+      label: Способ запуска
+      description: Как был запущен проект?
+      options:
+        - Docker Compose
+        - Локальное окружение
+        - GitHub Actions
+        - Другое
+    validations:
+      required: true
+
+  - type: input
+    id: python_version
+    attributes:
+      label: Версия Python
+      description: Какая была версия Python?
+    validations:
+      required: false
+
+  - type: input
+    id: django_version
+    attributes:
+      label: Версия Django
+      description: Какая была версия Django?
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Окружение
+      description: Укажите ОС, Docker version, PostgreSQL/Redis version или другой важный контекст.
+      placeholder: |
+        OS:
+        Docker:
+        PostgreSQL:
+        Redis:
+    validations:
+      required: false
+
   - type: textarea
     id: logs
     attributes:
