@@ -1,4 +1,4 @@
-# DjangoJWT — API Examples
+# ✏️ DjangoJWT — API Examples
 
 ## 🎯 Назначение документа
 Этот документ содержит примеры API-запросов для локальной проверки DjangoJWT.
@@ -15,7 +15,7 @@ make demo
 ---
 
 ## Оглавление
-- [DjangoJWT — API Examples](#djangojwt--api-examples)
+- [DjangoJWT — API Examples](#-djangojwt--api-examples)
   - [Назначение документа](#-назначение-документа)
   - [Оглавление](#оглавление)
   - [API endpoints](#-api-endpoints)
