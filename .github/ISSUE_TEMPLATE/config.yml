@@ -1,0 +1,6 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: Репозиторий доступен исключительно Read-only
+    url: https://github.com/NikPACodes/DjangoJWT/blob/master/CONTRIBUTING.md
+    about: Пожалуйста, ознакомьтесь с политикой репозитория, прежде чем создавать заявку.

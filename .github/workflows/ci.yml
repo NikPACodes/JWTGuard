@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: DjangoJWT tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: djangojwt_db
+          POSTGRES_USER: djangojwt
+          POSTGRES_PASSWORD: djangojwt
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U djangojwt -d djangojwt_db"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      DJANGO_SECRET_KEY: github-actions-test-secret-key
+      DJANGO_ALLOWED_HOSTS: 127.0.0.1,localhost
+
+      POSTGRES_DB: djangojwt_db
+      POSTGRES_USER: djangojwt
+      POSTGRES_PASSWORD: djangojwt
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
+      REDIS_URL: redis://localhost:6379/0
+
+      JWT_ALGORITHM: RS256
+      JWT_PRIVATE_KEY_PATH: certs/jwt_private.pem
+      JWT_PUBLIC_KEY_PATH: certs/jwt_public.pem
+      JWT_ISSUER: djangojwt
+      JWT_ACCESS_TTL_SECONDS: 120
+      JWT_REFRESH_TTL_SECONDS: 900
+      JWT_REFRESH_REUSE_GRACE_SECONDS: 0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Generate RSA keys
+        run: |
+          chmod +x scripts/generate_jwt_keys.sh
+          ./scripts/generate_jwt_keys.sh
+
+      - name: Verify RSA keys
+        run: |
+          chmod +x scripts/verify_jwt_keys.sh
+          ./scripts/verify_jwt_keys.sh
+
+      - name: Verify Django configuration
+        run: |
+          python manage.py check
+
+      - name: Check migrations
+        run: |
+          python manage.py makemigrations --check --dry-run
+
+      - name: Apply migrations
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Run tests
+        run: |
+          pytest

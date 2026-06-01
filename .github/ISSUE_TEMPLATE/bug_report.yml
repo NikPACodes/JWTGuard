@@ -1,0 +1,70 @@
+name: Bug report
+description: Сообщите о воспроизводимой ошибке.
+title: "[Bug]: "
+labels:
+  - bug
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Этот репозиторий предназначен только для чтения и носит образовательный/справочный характер.
+
+        Пожалуйста, создавайте запросы на исправление ошибок только для воспроизводимых ошибок.
+        Запросы на добавление изменений (pull requests), запросы на добавление новых функций (feature requests), вопросы поддержки и обсуждения архитектуры не принимаются.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Описание проблемы
+      description: Кратко опишите ошибку.
+      placeholder: Где появилась ошибка?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Шаги для воспроизведения
+      description: Опишите минимальные шаги, необходимые для воспроизведения ошибки.
+      placeholder: |
+        1. Запуск ...
+        2. Запрос ...
+        3. Ошибка ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемое поведение
+      placeholder: Какое результат должен получиться?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактическое поведение
+      placeholder: Какой результат получен?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / traceback
+      description: При необходимости вставьте соответствующие журналы. Не включайте секреты, токены, пароли или закрытые ключи.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Подтверждение
+      options:
+        - label: Я подтверждаю, что это воспроизводимый отчет об ошибке, а не запрос на добавление функции или вопрос в службу поддержки.
+          required: true
+        - label: Я подтверждаю, что не включил секреты, токены JWT, пароли, закрытые ключи или конфиденциальные данные.
+          required: true
