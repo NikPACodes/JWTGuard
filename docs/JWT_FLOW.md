@@ -282,7 +282,7 @@ Redis session:
 ---
 
 ## ⚛️ Atomic Refresh Rotation
-Refresh rotation выполняется атомарно через Redis transaction pipeline.
+Refresh rotation выполняется атомарно через Redis transaction pipeline.  
 Это защищает от ситуации, когда один и тот же Refresh token используется двумя параллельными запросами.
 
 ⚠️ Проблемный сценарий без атомарности:
