@@ -7,7 +7,6 @@ from apps.auth_jwt.services.auth_service import login_user, logout_all_sessions,
 from apps.auth_jwt.services.registration_service import register_user
 
 
-#Временная заглушка для создания каркаса
 class HealthView(APIView):
     permission_classes = []
 
