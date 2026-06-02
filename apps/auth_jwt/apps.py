@@ -6,3 +6,6 @@ class AuthJwtConfig(AppConfig):
     name = 'apps.auth_jwt'
     verbose_name = 'AuthJWT'
     label = 'auth_jwt'
+
+    def ready(self):
+        import apps.auth_jwt.schema  # noqa: F401

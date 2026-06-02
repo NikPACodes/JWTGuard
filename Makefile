@@ -1,4 +1,4 @@
-.PHONY: build up up-d down restart logs ps bash shell migrate makemigrations createsuperuser demo tests check keys verify-keys clean
+.PHONY: build up up-d down restart logs ps bash shell migrate makemigrations createsuperuser demo tests check keys verify-keys clean schema
 
 build:
 	docker compose build
@@ -54,3 +54,6 @@ verify-keys:
 
 clean:
 	docker compose down -v
+
+schema:
+	docker compose exec app python manage.py spectacular --file schema.yml

@@ -155,9 +155,9 @@ REST_FRAMEWORK = {
 # Spectacular
 # --------------------------------------------------------------------------
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Backend JWT API',
-    'DESCRIPTION': 'Django + PyJWT + Redis task',
-    'VERSION': '0.1.0',
+    'TITLE': 'DjangoJWT API',
+    'DESCRIPTION': 'Advanced JWT authentication with Django + PyJWT + Redis-backed sessions',
+    'VERSION': '1.0.0',
 
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,

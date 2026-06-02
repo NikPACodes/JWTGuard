@@ -30,6 +30,7 @@
     - [Demo data](#demo-data)
     - [JWT keys](#jwt-keys)
     - [Clean](#clean)
+    - [Schema](#schema)
   - [Тесты](#-тесты)
   - [Проверка API-документации](#-проверка-api-документации)
   - [Типичный локальный workflow](#-типичный-локальный-workflow)
@@ -271,6 +272,12 @@ make clean  # останавливает контейнеры и удаляет 
 
 ⚠️ ️️Внимание: `make clean` удаляет данные PostgreSQL, потому что выполняет `docker compose down -v`.
 
+
+### Schema
+```bash
+make schema  # получение OpenAPI schema
+```
+
 ---
 
 ## ⚡ Тесты
@@ -299,8 +306,8 @@ make tests
 После запуска проекта доступны:
 ```text
 GET /api/schema/
-GET /api/docs/swagger/
-GET /api/docs/redoc/
+GET /api/schema/swagger/
+GET /api/schema/redoc/
 ```
 
 ℹ️ Swagger UI можно использовать для ручной проверки endpoints.

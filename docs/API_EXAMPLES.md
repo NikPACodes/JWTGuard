@@ -64,8 +64,8 @@ GET /api/content/{id}/
 ### API documentation
 ```text
 GET /api/schema/
-GET /api/docs/swagger/
-GET /api/docs/redoc/
+GET /api/schema/swagger/
+GET /api/schema/redoc/
 ```
 
 ---
@@ -403,8 +403,8 @@ curl -X GET http://localhost:8000/api/auth/profile/ \
 ## {···} Swagger / Redoc
 
 OpenAPI schema ── `http://localhost:8000/api/schema/`  
-Swagger UI ── `http://localhost:8000/api/docs/swagger/`  
-Redoc ── `http://localhost:8000/api/docs/redoc/`  
+Swagger UI ── `http://localhost:8000/api/schema/swagger/`  
+Redoc ── `http://localhost:8000/api/schema/redoc/`  
 
 ℹ️ Swagger можно использовать как альтернативу `curl` для ручной проверки endpoints.
 

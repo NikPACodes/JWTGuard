@@ -171,8 +171,8 @@ GET /api/content/{id}/
 ### API documentation
 ```text
 GET /api/schema/
-GET /api/docs/swagger/
-GET /api/docs/redoc/
+GET /api/schema/swagger/
+GET /api/schema/redoc/
 ```
 
 ℹ️ Примеры запросов — [API_EXAMPLES](./docs/API_EXAMPLES.md)
