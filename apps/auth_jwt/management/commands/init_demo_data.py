@@ -1,3 +1,7 @@
+# Copyright 2026 Nikolay Petukhov (NikPACodes)
+#
+# Licensed under the Apache License, Version 2.0.
+# See the LICENSE file in the project root for details.
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db import transaction

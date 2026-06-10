@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
 authors = [
-    { name = "NikPACodes" }
+    { name = "Nikolay Petukhov (NikPACodes)" }
 ]
 dependencies = [
     "Django>=6.0,<6.1",

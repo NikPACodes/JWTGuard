@@ -1,3 +1,7 @@
+# Copyright 2026 Nikolay Petukhov (NikPACodes)
+#
+# Licensed under the Apache License, Version 2.0.
+# See the LICENSE file in the project root for details.
 from __future__ import annotations
 from uuid import uuid4
 from django.contrib.auth import authenticate
