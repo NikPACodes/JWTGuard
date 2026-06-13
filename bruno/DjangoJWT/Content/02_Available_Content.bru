@@ -1,0 +1,27 @@
+meta {
+  name: 02 Available Content
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/content/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("response is array", function () {
+    const body = res.getBody();
+
+    expect(Array.isArray(body)).to.equal(true);
+  });
+}
