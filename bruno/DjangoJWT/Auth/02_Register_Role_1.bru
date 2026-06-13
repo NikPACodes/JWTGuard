@@ -1,0 +1,26 @@
+meta {
+  name: 02 Register Role 1
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/auth/register/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{role1_email}}",
+    "username": "{{role1_username}}",
+    "password": "{{role1_password}}",
+    "role": "role_1"
+  }
+}
+
+tests {
+  test("status is 201 or already exists", function () {
+    expect(res.getStatus()).to.be.oneOf([201, 400]);
+  });
+}

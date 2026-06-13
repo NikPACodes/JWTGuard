@@ -1,4 +1,24 @@
-.PHONY: build up up-d down restart logs ps bash shell migrate makemigrations createsuperuser demo tests check keys verify-keys clean schema
+# Docker
+.PHONY: build up up-d down restart logs ps
+
+# Django
+.PHONY: bash shell migrate makemigrations createsuperuser demo
+
+# Quality
+.PHONY: tests check
+
+# JWT
+.PHONY: keys verify-keys
+
+# Docs
+.PHONY: schema
+
+# Bruno
+.PHONY: bruno bruno-auth bruno-content bruno-security
+
+# Cleanup
+.PHONY: clean
+
 
 build:
 	docker compose build
@@ -57,3 +77,15 @@ clean:
 
 schema:
 	docker compose exec app python manage.py spectacular --file schema.yml
+
+bruno:
+	cd bruno/DjangoJWT && bru run --env local
+
+bruno-auth:
+	cd bruno/DjangoJWT && bru run Auth --env local
+
+bruno-content:
+	cd bruno/DjangoJWT && bru run Content --env local
+
+bruno-security:
+	cd bruno/DjangoJWT && bru run Security --env local

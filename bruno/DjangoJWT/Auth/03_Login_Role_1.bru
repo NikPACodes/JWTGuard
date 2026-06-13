@@ -1,0 +1,37 @@
+meta {
+  name: 03 Login Role 1
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/auth/login/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{role1_email}}",
+    "password": "{{role1_password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  bru.setVar("access_token", body.access);
+  bru.setVar("refresh_token", body.refresh);
+}
+
+tests {
+  test("status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("tokens are returned", function () {
+    const body = res.getBody();
+    expect(body.access).to.be.a("string");
+    expect(body.refresh).to.be.a("string");
+  });
+}

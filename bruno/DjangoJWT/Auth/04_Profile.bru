@@ -1,0 +1,26 @@
+meta {
+  name: 04 Profile
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/auth/profile/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("profile contains email", function () {
+    const body = res.getBody();
+    expect(body.email).to.equal(bru.getEnvVar("role1_email"));
+  });
+}
