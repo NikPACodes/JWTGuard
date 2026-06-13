@@ -1,0 +1,21 @@
+meta {
+  name: 07 Profile After Logout
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base_url}}/api/auth/profile/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("access token rejected", function () {
+    expect(res.getStatus()).to.be.oneOf([401, 403]);
+  });
+}
