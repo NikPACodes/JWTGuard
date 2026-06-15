@@ -76,9 +76,15 @@ GET /api/schema/redoc/
 GET /api/auth/health/
 ```
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X GET http://localhost:8000/api/auth/health/
+```
+
+2) __Bruno__:
+```text
+Auth/01 Health
 ```
 
 
@@ -87,9 +93,15 @@ curl -X GET http://localhost:8000/api/auth/health/
 GET /api/content/health/
 ```
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X GET http://localhost:8000/api/content/health/
+```
+
+2) __Bruno__:
+```text
+Content/01 Content Health
 ```
 
 ---
@@ -125,7 +137,8 @@ Body:
 }
 ```
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X POST http://localhost:8000/api/auth/register/ \
   -H "Content-Type: application/json" \
@@ -135,6 +148,11 @@ curl -X POST http://localhost:8000/api/auth/register/ \
     "password": "StrongPass123!",
     "role": "role_1"
   }'
+```
+
+2) __Bruno__:
+```text
+Auth/02 Register Role 1
 ```
 
 ⚠️ ️Роль должна существовать в системе. Для локальной проверки сначала выполни `make demo`.
@@ -156,7 +174,8 @@ Body:
 }
 ```
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X POST http://localhost:8000/api/auth/login/ \
   -H "Content-Type: application/json" \
@@ -174,6 +193,11 @@ curl -X POST http://localhost:8000/api/auth/login/ \
 }
 ```
 
+2) __Bruno__:
+```text
+Auth/03 Login Role 1
+```
+
 ---
 
 ## Profile
@@ -184,11 +208,17 @@ GET /api/auth/profile/
 
 Authorization: `Bearer <access_token>`
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X GET http://localhost:8000/api/auth/profile/ \
   -H "Authorization: Bearer <access_token>"
 ```  
+
+2) __Bruno__:
+```text
+Auth/04 Profile
+```
 
 ---
 
@@ -206,7 +236,8 @@ Body:
 }
 ```
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X POST http://localhost:8000/api/auth/refresh/ \
   -H "Content-Type: application/json" \
@@ -221,6 +252,11 @@ curl -X POST http://localhost:8000/api/auth/refresh/ \
   "access": "<new_access_token>",
   "refresh": "<new_refresh_token>"
 }
+```
+
+2) __Bruno__:
+```text
+Auth/05 Refresh
 ```
 
 ℹ️ После успешного refresh старая пара токенов становится недействительной.
@@ -253,13 +289,19 @@ Body:
 }
 ```
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X POST http://localhost:8000/api/auth/logout/ \
   -H "Content-Type: application/json" \
   -d '{
     "refresh": "<refresh_token>"
   }'
+```
+
+2) __Bruno__:
+```text
+Auth/06 Logout
 ```
 
 ℹ️ После logout:
@@ -278,10 +320,16 @@ POST /api/auth/logout-all/
 
 Authorization: `Bearer <access_token>`
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X POST http://localhost:8000/api/auth/logout-all/ \
   -H "Authorization: Bearer <access_token>"
+```
+
+2) __Bruno__:
+```text
+Security/06 Logout All
 ```
 
 ℹ️ После logout all все старые access/refresh tokens пользователя должны стать недействительными.
@@ -296,10 +344,16 @@ GET /api/content/
 
 Authorization: `Bearer <access_token>`
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X GET http://localhost:8000/api/content/ \
   -H "Authorization: Bearer <access_token>"
+```
+
+2) __Bruno__:
+```text
+Content/03 Available Content
 ```
 
 Пользователь с ролью `role_1` должен видеть:
@@ -320,10 +374,16 @@ GET /api/content/{id}/
 
 Authorization: `Bearer <access_token>`
 
-Пример через `curl`:
+Примеры:
+1) `curl`:
 ```bash
 curl -X GET http://localhost:8000/api/content/1/ \
   -H "Authorization: Bearer <access_token>"
+```
+
+2) __Bruno__:
+```text
+Content/04 Content Detail
 ```
 
 ℹ️ Если объект не доступен группам пользователя, API должен вернуть ошибку.
@@ -398,6 +458,30 @@ curl -X GET http://localhost:8000/api/auth/profile/ \
 ```
 ℹ️ Ожидаемый результат — отказ в доступе.
 
+
+### Тестирование через Bruno
+Тестирование всех сценариев:
+```bash
+make bruno
+```
+
+Тестирование полный цикла аутентификации:
+```bash
+make bruno-auth
+```
+
+Тестирование доступа к контенту:
+```bash
+make bruno-content
+```
+
+Тестирование security-сценариев:
+```bash
+make bruno-security
+```
+
+ℹ️ Подробная инструкция: [BRUNO](./BRUNO.md)
+
 ---
 
 ## {···} Swagger / Redoc
@@ -406,7 +490,7 @@ OpenAPI schema ── `http://localhost:8000/api/schema/`
 Swagger UI ── `http://localhost:8000/api/schema/swagger/`  
 Redoc ── `http://localhost:8000/api/schema/redoc/`  
 
-ℹ️ Swagger можно использовать как альтернативу `curl` для ручной проверки endpoints.
+ℹ️ Swagger также можно использовать для ручного тестирования как альтернативу `curl` и __Bruno__.
 
 ---
 
@@ -416,3 +500,4 @@ Redoc ── `http://localhost:8000/api/schema/redoc/`
 - [ARCHITECTURE](./ARCHITECTURE.md) ── Архитектура проекта.
 - [JWT_FLOW](./JWT_FLOW.md) ── Жизненный цикл токенов.
 - [SECURITY_MODEL](./SECURITY_MODEL.md) ── Модель безопасности.
+- [BRUNO](./BRUNO.md) ── Коллекция Bruno для воспроизведения Auth, Content и Security сценариев.

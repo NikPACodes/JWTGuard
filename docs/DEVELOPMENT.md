@@ -31,8 +31,10 @@
     - [JWT keys](#jwt-keys)
     - [Clean](#clean)
     - [Schema](#schema)
+    - [Bruno](#bruno)
   - [Тесты](#-тесты)
   - [Проверка API-документации](#-проверка-api-документации)
+  - [Ручное тестирование API](#-ручное-тестирование-api)
   - [Типичный локальный workflow](#-типичный-локальный-workflow)
   - [Возможные проблемы](#-возможные-проблемы)
     - [Ошибка: private/public key не найден](#ошибка-privatepublic-key-не-найден)
@@ -278,6 +280,14 @@ make clean  # останавливает контейнеры и удаляет 
 make schema  # получение OpenAPI schema
 ```
 
+### Bruno
+```bash
+make bruno           # запуск всех сценариев 
+make bruno-auth      # запуск auth flow
+make bruno-content   # запуск content flow
+make bruno-security  # запуск security flow
+```
+
 ---
 
 ## ⚡ Тесты
@@ -311,6 +321,21 @@ GET /api/schema/redoc/
 ```
 
 ℹ️ Swagger UI можно использовать для ручной проверки endpoints.
+
+---
+
+## 🔍 Ручное тестирование API
+
+Помимо __Swagger UI__ проект включает коллекцию __Bruno__ для воспроизведения основных пользовательских сценариев.
+
+Bruno позволяет проверить:
+- Authentication Flow;
+- Content Access Flow;
+- Refresh Rotation;
+- Refresh Token Reuse Detection;
+- Logout All Sessions.
+
+ℹ️ Подробная инструкция [BRUNO](./BRUNO.md)
 
 ---
 
@@ -546,3 +571,4 @@ Group.objects.values_list("name", flat=True)
 - [JWT_FLOW](./JWT_FLOW.md) ── Жизненный цикл токенов.
 - [SECURITY_MODEL](./SECURITY_MODEL.md) ── Модель безопасности.
 - [API_EXAMPLES](./API_EXAMPLES.md) ── Примеры API-запросов.
+- [BRUNO](./BRUNO.md) ── Коллекция Bruno для воспроизведения Auth, Content и Security сценариев.

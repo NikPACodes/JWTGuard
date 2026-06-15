@@ -50,6 +50,7 @@
     - [Session Storage](#session-storage)
     - [User Sessions Index](#user-sessions-index)
   - [Итоговая схема](#-итоговая-схема)
+  - [Проверка сценариев через Bruno](#-проверка-сценариев-через-bruno)
   - [Связанные документы](#-связанные-документы)
 
 ---
@@ -622,9 +623,28 @@ Reuse detection отзывает скомпрометированную session
 
 ---
 
+## 🐶 Проверка сценариев через Bruno
+Все сценарии, описанные в данном документе, можно воспроизвести через Bruno Collection:
+- Login Flow
+- Refresh Rotation Flow
+- Refresh Token Reuse Detection
+- Logout Flow
+- Logout All Sessions Flow
+
+Соответствующие запросы находятся в папках:
+```text
+Auth/
+Security/
+```
+
+ℹ️ Подробности: [BRUNO](./BRUNO.md)
+
+---
+
 ## 🔗 Связанные документы
 - [README](../README.md) ── Краткое описание проекта.
 - [ARCHITECTURE](./ARCHITECTURE.md) ── Архитектура проекта.
 - [SECURITY_MODEL](./SECURITY_MODEL.md) ── Модель безопасности.
 - [DEVELOPMENT](./DEVELOPMENT.md) ── Локальный запуск и команды разработки.
 - [API_EXAMPLES](./API_EXAMPLES.md) ── Примеры API-запросов.
+- [BRUNO](./BRUNO.md) ── Коллекция Bruno для воспроизведения Auth, Content и Security сценариев.

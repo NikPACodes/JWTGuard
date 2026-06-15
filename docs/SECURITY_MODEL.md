@@ -495,9 +495,32 @@ Compromised session revoke
 
 ---
 
+## 🐶 Bruno Security Flows
+Проект включает __Bruno Collection__ для ручной демонстрации security-сценариев.
+
+Bruno позволяет воспроизвести поведение системы через реальные HTTP-запросы:
+- Refresh Token Rotation;
+- Refresh Token Reuse Detection;
+- Session Revocation;
+- Logout All Sessions;
+- отказ в доступе после отзыва сессии.
+
+⚠️ Важно: __Bruno__ не является заменой автоматическим тестам безопасности.
+
+__Bruno__ демонстрирует внешний API-flow, а __Pytest__ проверяет внутренние гарантии системы:
+- состояние Redis session;
+- refresh whitelist;
+- token blacklist;
+- отзыв access / refresh tokens;
+- обработку reuse detection;
+- корректность logout / logout-all.
+
+---
+
 ## 🔗 Связанные документы
 - [README](../README.md) ── Краткое описание проекта.
 - [ARCHITECTURE](./ARCHITECTURE.md) ── Архитектура проекта.
 - [JWT_FLOW](./JWT_FLOW.md) ── Жизненный цикл токенов.
 - [DEVELOPMENT](./DEVELOPMENT.md) ── Локальный запуск и команды разработки.
 - [API_EXAMPLES](./API_EXAMPLES.md) ── Примеры API-запросов.
+- [BRUNO](./BRUNO.md) ── Коллекция Bruno для воспроизведения Auth, Content и Security сценариев.
