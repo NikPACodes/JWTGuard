@@ -1,0 +1,31 @@
+meta {
+  name: 02 Login For Content Test
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/auth/login/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "{{role1_email}}",
+    "password": "{{role1_password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  bru.setVar("access_token", body.access);
+  bru.setVar("refresh_token", body.refresh);
+}
+
+tests {
+  test("status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

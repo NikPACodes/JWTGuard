@@ -1,0 +1,21 @@
+meta {
+  name: 03 Content Detail
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/content/1/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

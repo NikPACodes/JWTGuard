@@ -1,11 +1,11 @@
 meta {
-  name: 03 Content Detail
+  name: 06 Logout All
   type: http
-  seq: 3
+  seq: 6
 }
 
-get {
-  url: {{base_url}}/api/content/1/
+post {
+  url: {{base_url}}/api/auth/logout-all/
   body: none
   auth: bearer
 }

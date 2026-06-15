@@ -1,0 +1,33 @@
+meta {
+  name: 03 Reuse Old Refresh Token
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/auth/refresh/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refresh": "{{old_refresh_token}}"
+  }
+}
+
+script:pre-request {
+  const waitMs = Number(bru.getVar("wait_grace_ms") || 6000);
+  await new Promise(resolve => setTimeout(resolve, waitMs));
+}
+
+tests {
+  test("reuse is rejected", function () {
+    expect(res.getStatus()).to.be.oneOf([401, 403]);
+  });
+
+  test("reuse detection triggered", function () {
+    const body = res.getBody();
+    expect(body.code).to.equal("refresh_token_reuse_detected");
+  });
+}

@@ -1,0 +1,32 @@
+meta {
+  name: 02 Refresh First Time
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/auth/refresh/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refresh": "{{refresh_token}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+
+  bru.setVar("old_refresh_token", bru.getVar("refresh_token"));
+
+  bru.setVar("access_token", body.access);
+  bru.setVar("refresh_token", body.refresh);
+}
+
+tests {
+  test("status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

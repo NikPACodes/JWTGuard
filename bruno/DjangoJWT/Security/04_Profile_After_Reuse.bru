@@ -1,0 +1,26 @@
+meta {
+  name: 04 Profile After Reuse
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/auth/profile/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+tests {
+  test("session revoked", function () {
+    expect(res.getStatus()).to.be.oneOf([401, 403]);
+  });
+
+  test("token blacklisted triggered", function () {
+    const body = res.getBody();
+    expect(body.code).to.equal("token_blacklisted");
+  });
+}
