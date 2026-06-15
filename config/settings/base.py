@@ -138,6 +138,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Django REST Framework
 # --------------------------------------------------------------------------
 REST_FRAMEWORK = {
+    # Единый формат ошибок для всего API.
+    "EXCEPTION_HANDLER": "utils.exception_handler.custom_exception_handler",
+
     # Схема (по умолчанию)
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 

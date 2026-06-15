@@ -66,13 +66,14 @@ class UserNotFoundAuthError(JWTAuthError):
     default_code = "user_not_found"
 
 
-class TokenRotationConflictError(JWTAuthError):
+class TokenRotationConflictError(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = "Ошибка ротации токена."
     default_code = "token_rotation_conflict"
 
 
-class RefreshTokenReuseDetectedError(JWTAuthError):
+class RefreshTokenReuseDetectedError(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
     default_detail = "Обнаружено повторное использование Refresh токена. Сессия была отозвана."
     default_code = "refresh_token_reuse_detected"
 

@@ -56,8 +56,8 @@ def test_refresh_reuse_revokes_session(api_client, user, token_store):
         format="json",
     )
 
-    assert reuse_response.status_code == 403
-    assert reuse_response.data['detail'].code == "refresh_token_reuse_detected"
+    assert reuse_response.status_code == 401
+    assert reuse_response.data['code'] == "refresh_token_reuse_detected"
 
     session = token_store.get_session(session_id=old_refresh_payload['sid'])
     assert session is None
@@ -71,7 +71,7 @@ def test_refresh_reuse_revokes_session(api_client, user, token_store):
         },
         format="json",
     )
-    assert second_refresh_response.status_code == 403
+    assert second_refresh_response.status_code == 401
 
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {new_access}")
     profile_response = api_client.get('/api/auth/profile/')
