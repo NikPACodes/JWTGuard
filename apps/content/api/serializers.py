@@ -13,3 +13,8 @@ class ContentItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentItem
         fields = ('id', 'title', 'body', 'allowed_groups', 'created_at')
+
+
+class ContentHealthResponseSerializer(serializers.Serializer):
+    status = serializers.CharField()
+    service = serializers.CharField()

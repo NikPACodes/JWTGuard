@@ -2,12 +2,21 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from apps.content.api.serializers import ContentItemSerializer
+from drf_spectacular.utils import extend_schema
+from apps.content.api.serializers import ContentItemSerializer, ContentHealthResponseSerializer
 from apps.content.models import ContentItem
 
 
 class ContentHealthView(APIView):
     permission_classes = []
+    authentication_classes = []
+
+    @extend_schema(
+        tags=["Content"],
+        auth=[],
+        responses={200: ContentHealthResponseSerializer},
+    )
+
 
     def get(self, request):
         return Response({"status": "ok", "service": "content"})

@@ -107,7 +107,7 @@ def test_logout_all_revokes_all_user_sessions(api_client, user):
         },
         format="json",
     )
-    assert refresh_response_1.status_code == 403
+    assert refresh_response_1.status_code == 401
 
     refresh_response_2 = api_client.post(
         "/api/auth/refresh/",
@@ -116,4 +116,4 @@ def test_logout_all_revokes_all_user_sessions(api_client, user):
         },
         format="json",
     )
-    assert refresh_response_2.status_code == 403
+    assert refresh_response_2.status_code == 401

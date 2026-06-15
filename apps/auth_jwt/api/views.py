@@ -6,13 +6,22 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework import permissions, status
-from apps.auth_jwt.api.serializers import LoginSerializer, LogoutSerializer, RefreshSerializer, RegisterSerializer
+from drf_spectacular.utils import extend_schema
+from apps.auth_jwt.api.serializers import (LoginSerializer, LogoutSerializer, RefreshSerializer, RegisterSerializer,
+                                           HealthResponseSerializer, ProfileResponseSerializer, DetailResponseSerializer)
 from apps.auth_jwt.services.auth_service import login_user, logout_all_sessions, logout_session, refresh_tokens
 from apps.auth_jwt.services.registration_service import register_user
 
 
 class HealthView(APIView):
     permission_classes = []
+    authentication_classes = []
+
+    @extend_schema(
+        tags=["Auth"],
+        auth=[],
+        responses={200: HealthResponseSerializer},
+    )
 
     def get(self, request):
         return Response({"status": "ok", "service": "auth"})
@@ -23,6 +32,11 @@ class ProfileView(APIView):
     Профиль
     """
     permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        tags=["Auth"],
+        responses={200: ProfileResponseSerializer},
+    )
 
     def get(self, request):
         groups = list(request.user.groups.values_list("name", flat=True))
@@ -42,6 +56,7 @@ class RegisterView(GenericAPIView):
     Кастомная регистрация
     """
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
     serializer_class = RegisterSerializer
 
     def post(self, request):
@@ -72,6 +87,7 @@ class LoginView(GenericAPIView):
     AllowAny т.к. нет Access токена
     """
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -91,6 +107,7 @@ class RefreshView(GenericAPIView):
     AllowAny т.к. Access токен уже истек
     """
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
     serializer_class = RefreshSerializer
 
     def post(self, request):
@@ -107,6 +124,7 @@ class LogoutView(GenericAPIView):
     AllowAny т.к. делаем logout_session на основе Refresh токена (Access может отсутствовать)
     """
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
     serializer_class = LogoutSerializer
 
     def post(self, request):
@@ -123,6 +141,12 @@ class LogoutAllView(APIView):
     IsAuthenticated т.к. logout_all_sessions делаем на основе User
     """
     permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        tags=["Auth"],
+        request=None,
+        responses={200: DetailResponseSerializer},
+    )
 
     def post(self, request):
         logout_all_sessions(user=request.user)

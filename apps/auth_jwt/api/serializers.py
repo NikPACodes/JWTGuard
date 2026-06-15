@@ -49,3 +49,19 @@ class RefreshSerializer(serializers.Serializer):
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
+
+
+class HealthResponseSerializer(serializers.Serializer):
+    status = serializers.CharField()
+    service = serializers.CharField()
+
+
+class ProfileResponseSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    username = serializers.CharField()
+    groups = serializers.ListField(child=serializers.CharField())
+
+
+class DetailResponseSerializer(serializers.Serializer):
+    detail = serializers.CharField()
