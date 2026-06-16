@@ -1,6 +1,6 @@
 [project]
 name = "django-jwt-redis-auth"
-version = "0.1.0"
+version = "1.0.0"
 description = "Advanced JWT authentication example with Django, DRF, PyJWT, Redis sessions, refresh rotation, and token reuse detection."
 readme = "README.md"
 requires-python = ">=3.12"
