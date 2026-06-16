@@ -157,10 +157,12 @@ REST_FRAMEWORK = {
 # --------------------------------------------------------------------------
 # Spectacular
 # --------------------------------------------------------------------------
+PROJECT_VERSION = '1.0.0'
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'DjangoJWT API',
     'DESCRIPTION': 'Advanced JWT authentication with Django + PyJWT + Redis-backed sessions',
-    'VERSION': '1.0.0',
+    'VERSION': PROJECT_VERSION,
 
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
