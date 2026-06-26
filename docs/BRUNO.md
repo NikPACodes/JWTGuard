@@ -1,13 +1,13 @@
-# 🐶 DjangoJWT ── Bruno Collection
+# 🐶 JWTGuard ── Bruno Collection
 
 ## 🎯 Назначение документа
-Этот документ описывает структуру и использование коллекции __Bruno__, хранящейся в репозитории DjangoJWT
+Этот документ описывает структуру и использование коллекции __Bruno__, хранящейся в репозитории JWTGuard
 как вспомогательный инструмент ручного тестирования API.
 
 ---
 
 ## Оглавление
-- [DjangoJWT — Bruno Collection](#-djangojwt--bruno-collection)
+- [JWTGuard — Bruno Collection](#-jwtguard--bruno-collection)
   - [Назначение документа](#-назначение-документа)
   - [Оглавление](#оглавление)
   - [Bruno Collection](#-bruno-collection)
@@ -31,7 +31,7 @@
 ---
 
 ## 🐶 Bruno Collection
-Проект DjangoJWT включает коллекцию __Bruno__ для ручного тестирования API и 
+Проект JWTGuard включает коллекцию __Bruno__ для ручного тестирования API и 
 демонстрации основных сценариев работы системы аутентификации и авторизации.
 
 __Bruno__ используется как дополнение к существующим механизмам контроля качества проекта:
@@ -65,7 +65,7 @@ __Bruno__ используется как дополнение к существ
 ## 🏗️ Структура коллекции
 ```text
 bruno/
-└── DjangoJWT/
+└── JWTGuard/
     ├── bruno.json
     ├── environments/
     │   └── local.bru
@@ -137,7 +137,7 @@ http://localhost:8000
 ### Environment
 Коллекция использует файл:
 ```text
-bruno/DjangoJWT/environments/local.bru
+bruno/JWTGuard/environments/local.bru
 ```
 
 Основные переменные:
@@ -236,7 +236,7 @@ Profile After Logout All
 - Session Revocation;
 - Logout All Sessions.
 
-ℹ️ Данный сценарий является одним из ключевых элементов архитектуры DjangoJWT.
+ℹ️ Данный сценарий является одним из ключевых элементов архитектуры JWTGuard.
 
 ---
 
@@ -251,7 +251,7 @@ Open Collection
 
 Указать путь:
 ```text
-bruno/DjangoJWT
+bruno/JWTGuard
 ```
 
 Выбрать окружение:

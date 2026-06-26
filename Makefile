@@ -79,13 +79,13 @@ schema:
 	docker compose exec app python manage.py spectacular --file schema.yml
 
 bruno:
-	cd bruno/DjangoJWT && bru run --env local
+	cd bruno/JWTGuard && bru run --env local
 
 bruno-auth:
-	cd bruno/DjangoJWT && bru run Auth --env local
+	cd bruno/JWTGuard && bru run Auth --env local
 
 bruno-content:
-	cd bruno/DjangoJWT && bru run Content --env local
+	cd bruno/JWTGuard && bru run Content --env local
 
 bruno-security:
-	cd bruno/DjangoJWT && bru run Security --env local
+	cd bruno/JWTGuard && bru run Security --env local

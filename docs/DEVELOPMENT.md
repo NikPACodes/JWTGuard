@@ -1,4 +1,4 @@
-# 🛠️ DjangoJWT — Development Guide
+# 🛠️ JWTGuard — Development Guide
 
 ## 🎯 Назначение документа
 Этот документ описывает локальный запуск проекта, работу с Docker-окружением,
@@ -7,7 +7,7 @@
 ---
 
 ## Оглавление
-- [DjangoJWT — Development Guide](#-djangojwt--development-guide)
+- [JWTGuard — Development Guide](#-jwtguard--development-guide)
   - [Назначение документа](#-назначение-документа)
   - [Оглавление](#оглавление)
   - [Требования](#-требования)
@@ -64,8 +64,8 @@
 ### 1. Клонировать репозиторий
 
 ```bash
-git clone https://github.com/NikPACodes/DjangoJWT.git
-cd DjangoJWT
+git clone https://github.com/NikPACodes/JWTGuard.git
+cd JWTGuard
 ```
 
 
@@ -132,9 +132,9 @@ DJANGO_SETTINGS_MODULE='config.settings.dev'
 DJANGO_SECRET_KEY='super_secret_key'
 DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
 
-POSTGRES_DB='djangojwt'
-POSTGRES_USER='djangojwt'
-POSTGRES_PASSWORD='djangojwt'
+POSTGRES_DB='jwtguard_db'
+POSTGRES_USER='jwtguard'
+POSTGRES_PASSWORD='jwtguard'
 POSTGRES_HOST='localhost'
 POSTGRES_PORT=5432
 
@@ -143,7 +143,7 @@ REDIS_URL=redis://localhost:6379/0
 JWT_ALGORITHM=RS256
 JWT_PRIVATE_KEY_PATH='certs/jwt_private.pem'
 JWT_PUBLIC_KEY_PATH='certs/jwt_public.pem'
-JWT_ISSUER='djangojwt'
+JWT_ISSUER='jwtguard'
 JWT_ACCESS_TTL_SECONDS=900
 JWT_REFRESH_TTL_SECONDS=604800
 JWT_REFRESH_REUSE_GRACE_SECONDS=5

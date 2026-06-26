@@ -1,12 +1,12 @@
-# 🔐 DjangoJWT — управляемая JWT-аутентификация на Django, PyJWT и Redis
+# 🔐 JWTGuard — управляемая JWT-аутентификация на Django, PyJWT и Redis
 
-__DjangoJWT__ — учебно-инженерный backend-проект на Django REST Framework, 
+__JWTGuard__ — учебно-инженерный backend-проект на Django REST Framework, 
 реализующий управляемую JWT-аутентификацию с использованием `PyJWT`, `RS256`, `Redis` и `PostgreSQL`.
 
 ---
 
 ## Оглавление
-- [DjangoJWT — управляемая JWT-аутентификация на Django, PyJWT и Redis](#-djangojwt--управляемая-jwt-аутентификация-на-django-pyjwt-и-redis)
+- [JWTGuard — управляемая JWT-аутентификация на Django, PyJWT и Redis](#-jwtguard--управляемая-jwt-аутентификация-на-django-pyjwt-и-redis)
   - [Оглавление](#оглавление)
   - [Идея проекта](#-идея-проекта)
   - [Ключевые возможности](#-ключевые-возможности)
@@ -92,8 +92,8 @@ Redis = источник актуального состояния сессии
 
 Для быстрого запуска выполните следующие команды:
 ```bash
-git clone https://github.com/NikPACodes/DjangoJWT.git
-cd DjangoJWT
+git clone https://github.com/NikPACodes/JWTGuard.git
+cd JWTGuard
 cp .env.example .env.dev
 make keys
 make build

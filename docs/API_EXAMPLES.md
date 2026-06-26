@@ -1,7 +1,7 @@
-# ✏️ DjangoJWT — API Examples
+# ✏️ JWTGuard — API Examples
 
 ## 🎯 Назначение документа
-Этот документ содержит примеры API-запросов для локальной проверки DjangoJWT.
+Этот документ содержит примеры API-запросов для локальной проверки JWTGuard.
 
 Перед выполнением запросов убедись, что проект запущен:
 ```bash
@@ -15,7 +15,7 @@ make demo
 ---
 
 ## Оглавление
-- [DjangoJWT — API Examples](#-djangojwt--api-examples)
+- [JWTGuard — API Examples](#-jwtguard--api-examples)
   - [Назначение документа](#-назначение-документа)
   - [Оглавление](#оглавление)
   - [API endpoints](#-api-endpoints)
