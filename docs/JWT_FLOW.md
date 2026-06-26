@@ -1,8 +1,8 @@
-# 🔁 DjangoJWT — JWT Flow
+# 🔁 JWTGuard — JWT Flow
 
 ## 🎯 Назначение документа
 
-Этот документ описывает основные сценарии работы JWT-аутентификации в проекте DjangoJWT:
+Этот документ описывает основные сценарии работы JWT-аутентификации в проекте JWTGuard:
 - login;
 - проверка access token;
 - refresh rotation;
@@ -14,7 +14,7 @@
 
 ## Оглавление
 
-- [DjangoJWT — JWT Flow](#-djangojwt--jwt-flow)
+- [JWTGuard — JWT Flow](#-jwtguard--jwt-flow)
   - [Назначение документа](#-назначение-документа)
   - [Оглавление](#оглавление)
   - [Общая модель](#-общая-модель)
@@ -84,7 +84,7 @@ Access и Refresh tokens содержат общий набор базовых c
   "sid": "session_id",
   "iat": 1710000000,
   "exp": 1710000900,
-  "iss": "djangojwt"
+  "iss": "jwtguard"
 }
 ```
 

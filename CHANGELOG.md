@@ -1,12 +1,12 @@
 # Changelog
 
-## v1.0.0 - 2026-06-16
+## v1.0.0 - 2026-06-26
 
-Первый release проекта DjangoJWT.
+Первый release проекта JWTGuard.
 
 ### Added
 
-- Первый стабильный релиз DjangoJWT.
+- Первый стабильный релиз JWTGuard.
 - JWT-аутентификация на основе RS256.
 - Разделение access и refresh токенов.
 - Refresh Token Rotation

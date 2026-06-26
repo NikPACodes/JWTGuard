@@ -3,7 +3,7 @@ set -euo pipefail
 
 PRIVATE_KEY_PATH="certs/jwt_private.pem"
 PUBLIC_KEY_PATH="certs/jwt_public.pem"
-TMP_PUBLIC_KEY="/tmp/djangojwt_public_from_private.pem"
+TMP_PUBLIC_KEY="/tmp/jwtguard_public_from_private.pem"
 
 if [ ! -f "$PRIVATE_KEY_PATH" ]; then
   echo "Приватный ключ не найден: $PRIVATE_KEY_PATH"

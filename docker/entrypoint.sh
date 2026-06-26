@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Старт DjangoJWT контейнера..."
+echo "Старт JWTGuard контейнера..."
 
 if [ -z "${JWT_PRIVATE_KEY_PATH:-}" ]; then
   echo "ERROR: Приватный ключ JWT_PRIVATE_KEY_PATH не задан."
@@ -37,6 +37,6 @@ fi
 
 python /app/docker/wait_for_services.py
 
-echo "DjangoJWT контейнер готов. Выполняется команда: $*"
+echo "JWTGuard контейнер готов. Выполняется команда: $*"
 
 exec "$@"

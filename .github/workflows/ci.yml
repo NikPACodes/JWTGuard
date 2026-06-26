@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   tests:
-    name: DjangoJWT tests
+    name: JWTGuard tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -19,13 +19,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: djangojwt_db
-          POSTGRES_USER: djangojwt
-          POSTGRES_PASSWORD: djangojwt
+          POSTGRES_DB: jwtguard_db
+          POSTGRES_USER: jwtguard
+          POSTGRES_PASSWORD: jwtguard
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U djangojwt -d djangojwt_db"
+          --health-cmd="pg_isready -U jwtguard -d jwtguard_db"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=10
@@ -45,9 +45,9 @@ jobs:
       DJANGO_SECRET_KEY: github-actions-test-secret-key
       DJANGO_ALLOWED_HOSTS: 127.0.0.1,localhost
 
-      POSTGRES_DB: djangojwt_db
-      POSTGRES_USER: djangojwt
-      POSTGRES_PASSWORD: djangojwt
+      POSTGRES_DB: jwtguard_db
+      POSTGRES_USER: jwtguard
+      POSTGRES_PASSWORD: jwtguard
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
 
@@ -56,7 +56,7 @@ jobs:
       JWT_ALGORITHM: RS256
       JWT_PRIVATE_KEY_PATH: certs/jwt_private.pem
       JWT_PUBLIC_KEY_PATH: certs/jwt_public.pem
-      JWT_ISSUER: djangojwt
+      JWT_ISSUER: jwtguard
       JWT_ACCESS_TTL_SECONDS: 120
       JWT_REFRESH_TTL_SECONDS: 900
       JWT_REFRESH_REUSE_GRACE_SECONDS: 0

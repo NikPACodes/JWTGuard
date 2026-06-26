@@ -1,7 +1,7 @@
-# 🛡️ DjangoJWT — Security Model
+# 🛡️ JWTGuard — Security Model
 
 ## 🎯 Назначение документа
-Этот документ описывает модель безопасности проекта DjangoJWT:
+Этот документ описывает модель безопасности проекта JWTGuard:
 - какие угрозы учитываются;
 - какие гарантии даёт текущая реализация;
 - как защищаются Access и Refresh tokens;
@@ -12,7 +12,7 @@
 
 ## Оглавление
 
-- [DjangoJWT — Security Model](#-djangojwt--security-model)
+- [JWTGuard — Security Model](#-jwtguard--security-model)
   - [Назначение документа](#-назначение-документа)
   - [Оглавление](#оглавление)
   - [Общая модель безопасности](#-общая-модель-безопасности)
@@ -47,7 +47,7 @@
 ---
 
 ## 🎯 Общая модель безопасности
-DjangoJWT использует управляемую JWT-аутентификацию с Redis-backed session state.
+JWTGuard использует управляемую JWT-аутентификацию с Redis-backed session state.
 Ключевая идея:
 ```text
 valid JWT + active Redis session = authenticated request
