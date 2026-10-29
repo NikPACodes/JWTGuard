@@ -1,7 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Nikolay Petukhov (NikPACodes)
-#
-# Licensed under the Apache License, Version 2.0.
-# See the LICENSE file in the project root for details.
 from rest_framework.exceptions import AuthenticationFailed, APIException
 from rest_framework import status
 

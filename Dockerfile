@@ -17,7 +17,7 @@ RUN apt-get update \
        openssl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md LICENSE NOTICE ./
 
 RUN pip install --upgrade pip \
     && pip install ".[dev]"
